@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typen Leren - Typeoefening</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="profile-widget"></div>
+        <h1>⌨️ Typen Leren</h1>
+
+        <div class="header">
+            <div class="level-info">
+                <div class="level-name" id="current-level">Niveau 1</div>
+                <div class="level-letters" id="level-chars">f j [spatie]</div>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="chars-per-minute">0</div>
+                    <div class="stat-label">Tekens/min</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="accuracy">—</div>
+                    <div class="stat-label">Nauwkeurigheid</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise-section">
+<div class="display-container" id="display-container">
+                <div class="display-rows" id="display-rows"></div>
+            </div>
+            <div class="completion-meter">
+                <div class="completion-bar" id="progress-bar"></div>
+            </div>
+            <input
+                type="text"
+                id="text-input"
+                placeholder="Klik hier en begin te typen..."
+                autocomplete="off"
+                spellcheck="false"
+            >
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="buttons">
+            <button class="btn-secondary" onclick="resetExercise()">Nieuw Poging</button>
+            <button class="btn-primary" onclick="newExercise()">Volgende Oefening</button>
+        </div>
+
+        <div class="levels-section">
+            <h2>Niveaus</h2>
+            <div class="levels-grid" id="levels-grid"></div>
+        </div>
+
+        <div class="skill-scale-section">
+            <h2>Vaardigheidsniveau</h2>
+            <div id="skill-scale"></div>
+        </div>
+
+        <div class="stats-section">
+            <h2>Highscores <span class="hs-formula">score = tekens/min × nauwkeurigheid²</span></h2>
+            <div id="stats-grid"></div>
+        </div>
+
+        <div class="collection-section">
+            <h2>Dino Collectie</h2>
+            <div class="collection-summary">
+                <span id="collection-count">0 / 9 dino's</span>
+                <span class="latest-unlock" id="latest-unlock"></span>
+            </div>
+            <div class="dino-collection-sections" id="dino-grid"></div>
+        </div>
+    </div>
+
+    <div class="dino-info-overlay" id="dino-info-overlay" aria-hidden="true">
+        <div class="dino-info-modal" role="dialog" aria-modal="true" aria-labelledby="dino-info-title">
+            <button class="dino-info-close" id="dino-info-close" type="button" aria-label="Sluit dino informatie">&times;</button>
+            <div id="dino-info-panel"></div>
+        </div>
+    </div>
+
+    <script src="data/dinos.js"></script>
+    <script src="data/dinosaur-pictures.js"></script>
+    <script src="data/levels.js"></script>
+    <script src="src/config.js"></script>
+    <script src="src/state.js"></script>
+    <script src="src/profiles.js"></script>
+    <script src="src/stats.js"></script>
+    <script src="src/dino-modal.js"></script>
+    <script src="src/dino-collection.js"></script>
+    <script src="src/keyboard.js"></script>
+    <script src="src/exercise-generator.js"></script>
+    <script src="src/typing-game.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>

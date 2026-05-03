@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Logs / temp
+output.txt
+*.log
+
+# Claude Code (lokale config, niet projectinstructies)
+.claude/settings.local.json
+.claude/memory/
+.claude/hooks/

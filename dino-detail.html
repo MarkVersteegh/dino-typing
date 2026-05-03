@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Detail</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 24px;
+            font-size: 13px;
+        }
+
+        .back { color: #667eea; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 20px; }
+        .back:hover { color: #a5b4fc; }
+
+        h1 { color: #667eea; font-size: 24px; margin-bottom: 4px; }
+
+        .dino-id { color: #555; font-family: monospace; font-size: 11px; margin-bottom: 16px; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .badge-common    { background: #3a3a3a; color: #aaa; }
+        .badge-rare      { background: #1a3a5c; color: #7ab8f5; }
+        .badge-epic      { background: #2d1a4a; color: #c084fc; }
+        .badge-legendary { background: #3d2a00; color: #fbbf24; }
+
+        .header-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .header-images { display: flex; gap: 12px; flex-shrink: 0; }
+
+        .card-img, .hero-img {
+            border-radius: 8px;
+            background: #0d1b2a;
+            object-fit: contain;
+        }
+        .card-img { width: 100px; height: 100px; }
+        .hero-img { width: 160px; height: 120px; }
+
+        .img-missing {
+            border-radius: 8px;
+            background: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            font-size: 28px;
+        }
+
+        .header-info { flex: 1; min-width: 200px; }
+
+        .description {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            max-width: 780px;
+        }
+
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .stat-item {
+            background: #16213e;
+            border-radius: 6px;
+            padding: 6px 14px;
+            min-width: 110px;
+        }
+        .stat-label { color: #556; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { color: #e0e0e0; font-weight: 600; font-size: 14px; }
+
+        h2 {
+            color: #a0b4d6;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #1e2d4a;
+            padding-bottom: 6px;
+        }
+
+        .links-row { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+
+        .ext-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #667eea;
+            text-decoration: none;
+            background: #16213e;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .ext-link:hover { background: #1e2d4a; color: #a5b4fc; }
+
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .gallery-img {
+            height: 160px;
+            width: auto;
+            max-width: 260px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #0d1b2a;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .gallery-img:hover { opacity: 0.85; }
+
+        .no-images { color: #555; font-style: italic; }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: 92vw;
+            max-height: 92vh;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 28px;
+            color: #aaa;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .lightbox-close:hover { color: #fff; }
+
+        .not-found { color: #f87171; font-size: 16px; padding: 40px 0; }
+    </style>
+</head>
+<body>
+    <a class="back" href="dinoadmin.html">← Terug naar overzicht</a>
+    <div id="content"><p class="not-found">Laden…</p></div>
+
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">✕</span>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script src="data/dinos.js"></script>
+    <script src="data/dinosaur-pictures.js"></script>
+    <script>
+        const params = new URLSearchParams(location.search);
+        const dinoId = params.get('id');
+
+        const dino = (window.DINO_DB || []).find(d => d.id === dinoId);
+        const dp = (window.DINOSAUR_PICTURES_DB || {})[dinoId];
+
+        function onMissing(el, placeholder) {
+            const div = document.createElement('div');
+            div.className = 'img-missing ' + placeholder;
+            div.style.cssText = el.style.cssText;
+            div.textContent = '?';
+            el.replaceWith(div);
+        }
+
+        function extractImageSrcs(html) {
+            if (!html) return [];
+            const srcs = [];
+            const re = /<img\b[^>]*\bsrc="([^"]+)"/gi;
+            let m;
+            while ((m = re.exec(html)) !== null) srcs.push(m[1]);
+            return srcs;
+        }
+
+        if (!dino) {
+            document.getElementById('content').innerHTML =
+                `<p class="not-found">Dino niet gevonden: <code>${dinoId || '(geen id)'}</code></p>`;
+        } else {
+            document.title = `${dino.name} — Dino Detail`;
+
+            function getStat(label) {
+                const s = dino.stats.find(s => s.label === label);
+                return s ? s.value : '—';
+            }
+
+            const imageSrcs = extractImageSrcs(dp && dp.html);
+
+            const statsHtml = dino.stats.map(s =>
+                `<div class="stat-item"><div class="stat-label">${s.label}</div><div class="stat-value">${s.value}</div></div>`
+            ).join('');
+
+            const galleryHtml = imageSrcs.length
+                ? imageSrcs.map((src, i) =>
+                    `<img class="gallery-img" src="${src}" alt="${dino.name} ${i+1}"
+                        onerror="this.style.display='none'">`
+                ).join('')
+                : `<p class="no-images">Geen afbeeldingen gecached.</p>`;
+
+            document.getElementById('content').innerHTML = `
+                <h1>${dino.name}</h1>
+                <div class="dino-id">${dino.id}</div>
+                <span class="badge badge-${dino.rarity}">${dino.rarity}</span>
+
+                <div class="header-row">
+                    <div class="header-images">
+                        <img class="card-img" src="${dino.images.card}" alt="${dino.name} kaart"
+                            onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'img-missing card-img',textContent:'?'}))">
+                        <img class="hero-img" src="data/images/heroes/${dino.id}.png" alt="${dino.name} hero"
+                            onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'img-missing hero-img',textContent:'?'}))">
+                    </div>
+                    <div class="header-info">
+                        <p class="description">${dino.sections.description}</p>
+                    </div>
+                </div>
+
+                <h2>Statistieken</h2>
+                <div class="stats-grid">${statsHtml}</div>
+
+                <h2>Links</h2>
+                <div class="links-row">
+                    <a class="ext-link" href="${dp ? dp.sourceUrl : dino.external.dinosaurPicturesUrl}" target="_blank">🦕 DinosaurPictures.org</a>
+                    <a class="ext-link" href="${dino.external.paleoDinoDbUrl}" target="_blank">🎮 Paleo DinoDB</a>
+                </div>
+
+                <h2>Afbeeldingen (${imageSrcs.length})</h2>
+                <div class="image-gallery">${galleryHtml}</div>
+            `;
+
+            // Lightbox
+            const lightbox = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lightbox-img');
+            document.getElementById('lightbox-close').addEventListener('click', () => lightbox.classList.remove('open'));
+            lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+
+            document.querySelector('.image-gallery').addEventListener('click', e => {
+                if (e.target.classList.contains('gallery-img')) {
+                    lbImg.src = e.target.src;
+                    lbImg.alt = e.target.alt;
+                    lightbox.classList.add('open');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

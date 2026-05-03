@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dino Admin</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        padding: 24px;
+        font-size: 13px;
+      }
+
+      h1 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 22px;
+      }
+
+      /* ── Tabs ── */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #2a2a4a;
+        padding-bottom: 0;
+      }
+
+      .tab-btn {
+        padding: 8px 20px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        color: #888;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.15s;
+      }
+
+      .tab-btn:hover {
+        color: #c0c0e0;
+      }
+
+      .tab-btn.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* ── Dino-tab: existing styles ── */
+      .summary {
+        color: #888;
+        margin-bottom: 20px;
+      }
+
+      .rarity-section {
+        margin-bottom: 36px;
+      }
+
+      .rarity-heading {
+        font-size: 14px;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 6px;
+        display: inline-block;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .rarity-common {
+        background: #3a3a3a;
+        color: #ccc;
+      }
+      .rarity-rare {
+        background: #1a3a5c;
+        color: #7ab8f5;
+      }
+      .rarity-epic {
+        background: #2d1a4a;
+        color: #c084fc;
+      }
+      .rarity-legendary {
+        background: #3d2a00;
+        color: #fbbf24;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #16213e;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      thead th {
+        background: #0f3460;
+        color: #a0b4d6;
+        padding: 8px 10px;
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid #1e2d4a;
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: #1e2d4a;
+      }
+
+      td {
+        padding: 6px 10px;
+        vertical-align: middle;
+      }
+
+      .col-num {
+        color: #555;
+        width: 32px;
+        text-align: right;
+      }
+
+      .img-cell {
+        width: 56px;
+      }
+      .img-cell img {
+        height: 48px;
+        width: 48px;
+        object-fit: contain;
+        border-radius: 4px;
+        background: #0d1b2a;
+        display: block;
+      }
+      .img-missing {
+        height: 48px;
+        width: 48px;
+        background: #2a2a2a;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #444;
+        font-size: 18px;
+      }
+
+      .dino-name {
+        font-weight: 600;
+        color: #e0e0e0;
+      }
+      .dino-id {
+        color: #555;
+        font-size: 11px;
+        font-family: monospace;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge-common {
+        background: #3a3a3a;
+        color: #aaa;
+      }
+      .badge-rare {
+        background: #1a3a5c;
+        color: #7ab8f5;
+      }
+      .badge-epic {
+        background: #2d1a4a;
+        color: #c084fc;
+      }
+      .badge-legendary {
+        background: #3d2a00;
+        color: #fbbf24;
+      }
+
+      .status-ok {
+        color: #4ade80;
+      }
+      .status-warn {
+        color: #fbbf24;
+      }
+      .status-err {
+        color: #f87171;
+      }
+
+      .img-cell a {
+        display: block;
+      }
+      .name-link {
+        color: #e0e0e0;
+        text-decoration: none;
+      }
+      .name-link:hover {
+        color: #a5b4fc;
+      }
+
+      .links a {
+        display: inline-block;
+        margin-right: 6px;
+        color: #667eea;
+        text-decoration: none;
+        font-size: 16px;
+        line-height: 1;
+      }
+      .links a:hover {
+        color: #a5b4fc;
+      }
+
+      .col-desc {
+        max-width: 320px;
+        color: #888;
+        font-size: 11px;
+        line-height: 1.4;
+        white-space: normal;
+      }
+
+      /* ── Voortgang-tab ── */
+      .profile-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 28px;
+      }
+
+      .profile-btn {
+        padding: 6px 20px;
+        border-radius: 20px;
+        border: 2px solid #2a2a4a;
+        background: #16213e;
+        color: #888;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .profile-btn:hover {
+        border-color: #667eea;
+        color: #c0c0e0;
+      }
+
+      .profile-btn.active {
+        border-color: var(--profile-color);
+        color: var(--profile-color);
+        background: #1e1e3a;
+      }
+
+      .progress-section {
+        margin-bottom: 32px;
+      }
+
+      .progress-section h3 {
+        color: #a0b4d6;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+      }
+
+      .toggle-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .toggle-btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.1s;
+        min-width: 56px;
+        text-align: center;
+      }
+
+      .toggle-btn.unlocked {
+        background: #14532d;
+        border-color: #4ade80;
+        color: #4ade80;
+      }
+
+      .toggle-btn.unlocked.selected {
+        outline: 2px solid #fff;
+        outline-offset: 1px;
+      }
+
+      .toggle-btn.locked {
+        background: #2a2a3a;
+        border-color: #444;
+        color: #666;
+      }
+
+      .toggle-btn:hover {
+        filter: brightness(1.25);
+      }
+
+      .dino-toggle-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .dino-row {
+        display: flex;
+        gap: 4px;
+      }
+
+      .dino-toggle-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+        min-width: 80px;
+      }
+
+      .dino-extra-btn {
+        min-width: 52px;
+        font-size: 10px;
+      }
+
+      .dino-toggle-btn .dino-toggle-name {
+        display: block;
+        font-weight: 700;
+      }
+
+      .dino-toggle-btn .dino-toggle-rarity {
+        font-size: 10px;
+        opacity: 0.7;
+        font-weight: 400;
+      }
+
+      .dino-toggle-label {
+        display: block;
+        font-size: 10px;
+        opacity: 0.75;
+      }
+
+      .reset-btn {
+        margin-top: 24px;
+        padding: 8px 18px;
+        background: #3d1515;
+        border: 1px solid #7f1d1d;
+        color: #f87171;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .reset-btn:hover {
+        background: #7f1d1d;
+      }
+
+      .saved-toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #14532d;
+        color: #4ade80;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 13px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+      }
+
+      .saved-toast.show {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🦕 Dino Admin</h1>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('dinos')">Dino's</button>
+      <button class="tab-btn" onclick="switchTab('voortgang')">Voortgang</button>
+    </div>
+
+    <!-- Tab: Dino's -->
+    <div class="tab-panel active" id="tab-dinos">
+      <p class="summary" id="summary"></p>
+      <div id="content"></div>
+    </div>
+
+    <!-- Tab: Voortgang -->
+    <div class="tab-panel" id="tab-voortgang">
+      <div class="profile-tabs" id="profile-tabs"></div>
+      <div id="progress-content"></div>
+    </div>
+
+    <div class="saved-toast" id="saved-toast">Opgeslagen ✓</div>
+
+    <script src="data/dinos.js"></script>
+    <script src="data/dinosaur-pictures.js"></script>
+    <script src="data/levels.js"></script>
+    <script>
+      // ── Tab switching ──────────────────────────────────────────────
+      function switchTab(name) {
+        document.querySelectorAll(".tab-btn").forEach((b, i) => {
+          b.classList.toggle("active", ["dinos", "voortgang"][i] === name);
+        });
+        document.querySelectorAll(".tab-panel").forEach((p) => {
+          p.classList.toggle("active", p.id === "tab-" + name);
+        });
+      }
+
+      // ── Dino tab ──────────────────────────────────────────────────
+      const RARITIES = [
+        { key: "common", label: "Common" },
+        { key: "rare", label: "Rare" },
+        { key: "epic", label: "Epic" },
+        { key: "legendary", label: "Legendary" },
+      ];
+
+      function getStat(dino, label) {
+        const s = dino.stats.find((s) => s.label === label);
+        return s ? s.value : "—";
+      }
+
+      function imgCell(src, alt) {
+        return `<td class="img-cell">
+                <img src="${src}" alt="${alt}"
+                    onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'img-missing', textContent:'?'}))">
+            </td>`;
+      }
+
+      function countImages(html) {
+        if (!html) return 0;
+        return (html.match(/<img\b/gi) || []).length;
+      }
+
+      function renderDino(dino) {
+        const dp = (window.DINOSAUR_PICTURES_DB || {})[dino.id];
+        const hasHtml = dp && dp.html && !dp.error ? "✅" : "❌";
+        const hasGlobe = dp && dp.globeUrl ? "✅" : "❌";
+        const sourceUrl = dp ? dp.sourceUrl : dino.external.dinosaurPicturesUrl;
+        const imgCount = countImages(dp && dp.html);
+        const imgCountClass =
+          imgCount >= 10
+            ? "status-ok"
+            : imgCount > 0
+              ? "status-warn"
+              : "status-err";
+        const detailUrl = `dino-detail.html?id=${dino.id}`;
+
+        return `<tr>
+                <td class="col-num">${dino.unlockOrder}</td>
+                <td class="img-cell"><a href="${detailUrl}">
+                    <img src="${dino.images.card}" alt="${dino.name}"
+                        onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'img-missing', textContent:'?'}))">
+                </a></td>
+                ${imgCell(`data/images/heroes/${dino.id}.png`, dino.name + " hero")}
+                <td>
+                    <div class="dino-name"><a href="${detailUrl}" class="name-link">${dino.name}</a></div>
+                    <div class="dino-id">${dino.id}</div>
+                </td>
+                <td><span class="badge badge-${dino.rarity}">${dino.rarity}</span></td>
+                <td>${getStat(dino, "Era")}</td>
+                <td>${getStat(dino, "Diet")}</td>
+                <td>${getStat(dino, "Height")} / ${getStat(dino, "Length")}</td>
+                <td>${getStat(dino, "Weight")}</td>
+                <td class="${hasHtml === "✅" ? "status-ok" : "status-err"}">${hasHtml}</td>
+                <td class="${hasGlobe === "✅" ? "status-ok" : "status-err"}">${hasGlobe}</td>
+                <td class="${imgCountClass}">${imgCount}</td>
+                <td class="links">
+                    <a href="${sourceUrl}" target="_blank" title="DinosaurPictures.org">🦕</a>
+                    <a href="${dino.external.paleoDinoDbUrl}" target="_blank" title="Paleo DinoDB">🎮</a>
+                </td>
+                <td class="col-desc">${dino.sections.description.slice(0, 120)}…</td>
+            </tr>`;
+      }
+
+      function renderDinosTab() {
+        const dinos = [...window.DINO_DB].sort(
+          (a, b) => a.unlockOrder - b.unlockOrder,
+        );
+        document.getElementById("summary").textContent =
+          `${dinos.length} dino's totaal — ${dinos.filter((d) => d.rarity === "common").length} common, ` +
+          `${dinos.filter((d) => d.rarity === "rare").length} rare, ` +
+          `${dinos.filter((d) => d.rarity === "epic").length} epic, ` +
+          `${dinos.filter((d) => d.rarity === "legendary").length} legendary`;
+
+        const html = RARITIES.map(({ key, label }) => {
+          const group = dinos.filter((d) => d.rarity === key);
+          if (group.length === 0) return "";
+          return `
+                    <div class="rarity-section">
+                        <div class="rarity-heading rarity-${key}">${label} (${group.length})</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th><th>Kaart</th><th>Hero</th><th>Naam</th>
+                                    <th>Rarity</th><th>Era</th><th>Diet</th><th>H / L</th>
+                                    <th>Gewicht</th><th>DinoP.</th><th>Globe</th>
+                                    <th>Plaatjes</th><th>Links</th><th>Beschrijving</th>
+                                </tr>
+                            </thead>
+                            <tbody>${group.map(renderDino).join("")}</tbody>
+                        </table>
+                    </div>`;
+        }).join("");
+
+        document.getElementById("content").innerHTML = html;
+      }
+
+      // ── Voortgang tab ─────────────────────────────────────────────
+      const PROFILES = [
+        { id: "emmy", name: "Emmy", color: "#f472b6" },
+        { id: "joris", name: "Joris", color: "#34d399" },
+        { id: "mark", name: "Mark", color: "#667eea" },
+      ];
+
+      const STORAGE_PREFIX = "typing-progress";
+      let activeProfile = PROFILES[0].id;
+
+      function storageKey(profileId) {
+        return `${STORAGE_PREFIX}-${profileId}`;
+      }
+
+      function loadState(profileId) {
+        const levels = window.TYPING_LEVELS;
+        const raw = localStorage.getItem(storageKey(profileId));
+        if (!raw) {
+          return {
+            currentLevel: 0,
+            unlockedLevels: levels.map((_, i) => i === 0),
+            achievements: {
+              unlockedDinos: [],
+              unlockedExtras: [],
+              latestUnlock: "",
+              totalGoodAttempts: 0,
+            },
+            attempts: [],
+          };
+        }
+        try {
+          const data = JSON.parse(raw);
+          // Ensure unlockedLevels has the right length
+          if (
+            !Array.isArray(data.unlockedLevels) ||
+            data.unlockedLevels.length !== levels.length
+          ) {
+            data.unlockedLevels = levels.map((_, i) => i === 0);
+          }
+          data.achievements = data.achievements || {
+            unlockedDinos: [],
+            unlockedExtras: [],
+            latestUnlock: "",
+            totalGoodAttempts: 0,
+          };
+          return data;
+        } catch {
+          return null;
+        }
+      }
+
+      function saveState(profileId, state) {
+        localStorage.setItem(storageKey(profileId), JSON.stringify(state));
+        showToast();
+      }
+
+      function showToast() {
+        const t = document.getElementById("saved-toast");
+        t.classList.add("show");
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove("show"), 1800);
+      }
+
+      function renderProgressTab() {
+        // Profile buttons
+        document.getElementById("profile-tabs").innerHTML = PROFILES.map(
+          (p) =>
+            `<button class="profile-btn ${p.id === activeProfile ? "active" : ""}"
+                    style="--profile-color:${p.color}"
+                    onclick="selectProfile('${p.id}')">${p.name}</button>`,
+        ).join("");
+
+        const state = loadState(activeProfile);
+        const dinos = [...window.DINO_DB].sort(
+          (a, b) => a.unlockOrder - b.unlockOrder,
+        );
+        const levels = window.TYPING_LEVELS;
+
+        // Highest unlocked level (sequential: all below are unlocked)
+        const maxUnlocked = state.unlockedLevels.reduce((acc, v, i) => v ? i : acc, 0);
+
+        const levelButtons = levels.map((lvl, i) => {
+            const cls = i === maxUnlocked ? 'unlocked selected' : i < maxUnlocked ? 'unlocked' : 'locked';
+            return `<button class="toggle-btn ${cls}" onclick="setMaxLevel(${i})">${lvl.name}</button>`;
+        }).join('');
+
+        // Dinos grid with Basis + Extra per dino
+        const dinoButtons = dinos.map((d) => {
+            const hasBasis = state.achievements.unlockedDinos.includes(d.id);
+            const hasExtra = state.achievements.unlockedExtras.includes(d.id);
+            return `<div class="dino-row">
+                <button class="toggle-btn dino-toggle-btn ${hasBasis ? 'unlocked' : 'locked'}"
+                        onclick="toggleDino('${d.id}')">
+                    <span class="dino-toggle-name">${d.name}</span>
+                    <span class="dino-toggle-rarity">${d.rarity}</span>
+                    <span class="dino-toggle-label">Basis</span>
+                </button>
+                <button class="toggle-btn dino-toggle-btn dino-extra-btn ${hasExtra ? 'unlocked' : 'locked'}"
+                        onclick="toggleExtra('${d.id}')">
+                    <span class="dino-toggle-label">Extra</span>
+                </button>
+            </div>`;
+        }).join('');
+
+        document.getElementById("progress-content").innerHTML = `
+            <div class="progress-section">
+                <h3>Niveaus — tot en met niveau <strong>${levels[maxUnlocked].name}</strong></h3>
+                <div class="toggle-grid">${levelButtons}</div>
+            </div>
+            <div class="progress-section">
+                <h3>Dino's (${state.achievements.unlockedDinos.length} / ${dinos.length} Basis · ${state.achievements.unlockedExtras.length} Extra)</h3>
+                <div class="dino-toggle-grid">${dinoButtons}</div>
+            </div>
+            <button class="reset-btn" onclick="resetProfile()">⚠ Reset voortgang ${PROFILES.find(p => p.id === activeProfile).name}</button>`;
+      }
+
+      function selectProfile(id) {
+        activeProfile = id;
+        renderProgressTab();
+      }
+
+      function setMaxLevel(index) {
+        const state = loadState(activeProfile);
+        state.unlockedLevels = state.unlockedLevels.map((_, i) => i <= index);
+        saveState(activeProfile, state);
+        renderProgressTab();
+      }
+
+      function toggleDino(dinoId) {
+        const state = loadState(activeProfile);
+        const list = state.achievements.unlockedDinos;
+        const idx = list.indexOf(dinoId);
+        if (idx >= 0) {
+          list.splice(idx, 1);
+          if (state.achievements.latestUnlock === dinoId)
+            state.achievements.latestUnlock = list[list.length - 1] || "";
+        } else {
+          list.push(dinoId);
+          state.achievements.latestUnlock = dinoId;
+        }
+        state.achievements.totalGoodAttempts = list.length;
+        saveState(activeProfile, state);
+        renderProgressTab();
+      }
+
+      function toggleExtra(dinoId) {
+        const state = loadState(activeProfile);
+        const list = state.achievements.unlockedExtras;
+        const idx = list.indexOf(dinoId);
+        if (idx >= 0) list.splice(idx, 1);
+        else list.push(dinoId);
+        saveState(activeProfile, state);
+        renderProgressTab();
+      }
+
+      function resetProfile() {
+        const name = PROFILES.find((p) => p.id === activeProfile).name;
+        if (!confirm(`Voortgang van ${name} resetten?`)) return;
+        localStorage.removeItem(storageKey(activeProfile));
+        renderProgressTab();
+      }
+
+      // ── Init ──────────────────────────────────────────────────────
+      renderDinosTab();
+      renderProgressTab();
+    </script>
+  </body>
+</html>
